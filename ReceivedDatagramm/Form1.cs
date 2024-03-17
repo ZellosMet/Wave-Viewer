@@ -39,7 +39,6 @@ namespace ReceivedDatagramm
 		{
 			int[] data = new int[4096];
 			int x = 0;
-
 			try
 			{
 				int result = socket.ReceiveFrom(datagramm, ref remote_host);
