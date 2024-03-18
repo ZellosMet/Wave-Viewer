@@ -27,14 +27,6 @@ namespace ReceivedDatagramm
 		{
 			InitializeComponent();
 		}
-
-		private void b_Start_Click(object sender, EventArgs e)
-		{
-			t_RefreshChart.Interval = (int)nud_Interval.Value;
-			t_RefreshChart.Start();
-			b_Start.Enabled = false;
-			b_Stop.Enabled = true;
-		}
 		Task PaintChatr()
 		{
 			int[] data = new int[4096];
@@ -48,31 +40,63 @@ namespace ReceivedDatagramm
 				int min = data.Min();
 				int avg = (int)data.Average();
 
-				l_ResultReceiving.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {avg}";
+				int[] filter_data = new int[data.Length];
 
-				chart1.Series[0].Points.Clear();
-				chart1.Series[1].Points.Clear();
+				filter_data = MedianFilter(data);
+				int fmax = filter_data.Max();
+				int fmin = filter_data.Min();
+
+				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {avg}";
+				if(chb_Filter.Checked)
+					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}";
+
+				cht_Wave.Series[0].Points.Clear();
+				cht_Wave.Series[1].Points.Clear();
+				cht_Wave.Series[2].Points.Clear();
 				while (x <= data.Length - 1)
 				{
-					chart1.Series[0].Points.AddXY(x + 1, data[x]);
-					chart1.Series[1].Points.AddXY(x + 1, avg);
+					if (chb_Wave.Checked)
+					{ 
+						cht_Wave.Series[0].Points.AddXY(x + 1, data[x]);
+						cht_Wave.Series[0].Color = Color.Blue;
+					}
+					if (chb_Filter.Checked)
+					{ 
+						cht_Wave.Series[2].Points.AddXY(x + 1, filter_data[x]);
+						cht_Wave.Series[0].Color = Color.RoyalBlue;
+					}
+					cht_Wave.Series[1].Points.AddXY(x + 1, avg);
 					x++;
 				}
 
 			}
 			catch (Exception ex)
 			{
-				l_ResultReceiving.Text = $"Не удалось принять датаграмму {ex.Message}";
+				l_ResultReceivingSignal.Text = $"Не удалось принять датаграмму {ex.Message}";
 				return Task.FromResult(0);
 			}
 			return Task.FromResult(0);
 		}
-
+		int[] MedianFilter(int[] data)
+		{
+			int[] filter_data = new int[data.Length];
+			int median, a, b, c, i=0;
+			for (; i < filter_data.Length-2; i++)
+			{ 
+				a = data[i];
+				b = data[i + 1];
+				c = data[i + 2];
+				median = (Math.Max(a, b) == Math.Max(b, c)) ? Math.Max(a, c) : Math.Max(b, Math.Min(a, c));
+				filter_data[i] = median;
+				if(i == filter_data.Length - 3)
+					filter_data[filter_data.Length-2] = filter_data[filter_data.Length-1] = median;
+			}
+			return filter_data;
+		}
 		private async void t_RefreshChart_Tick(object sender, EventArgs e)
 		{
 			await PaintChatr();
 		}
-
 		private void b_Connect_Click(object sender, EventArgs e)
 		{
 			socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
@@ -95,12 +119,12 @@ namespace ReceivedDatagramm
 				server_ready = false;
 			}
 		}
-
 		private void b_Stop_Click(object sender, EventArgs e)
 		{
 			t_RefreshChart.Stop();
-			chart1.Series[0].Points.Clear();
-			chart1.Series[1].Points.Clear();
+			//chart1.Series[0].Points.Clear();
+			//chart1.Series[1].Points.Clear();
+			//chart1.Series[2].Points.Clear();
 			b_Start.Enabled = true;
 			b_Stop.Enabled = false;
 		}
@@ -108,8 +132,9 @@ namespace ReceivedDatagramm
 		private void b_Disconnect_Click(object sender, EventArgs e)
 		{
 			t_RefreshChart.Stop();
-			chart1.Series[0].Points.Clear();
-			chart1.Series[1].Points.Clear();
+			cht_Wave.Series[0].Points.Clear();
+			cht_Wave.Series[1].Points.Clear();
+			cht_Wave.Series[2].Points.Clear();
 			b_Connect.Enabled = true;
 			b_Disconnect.Enabled = false;
 			b_Start.Enabled = false;
@@ -117,6 +142,38 @@ namespace ReceivedDatagramm
 			server_ready=false;
 			socket.Close();
 			l_StattusConnect.Text = "UDP-Сервер остановлен";
+		}
+		private void b_Start_Click(object sender, EventArgs e)
+		{
+			t_RefreshChart.Interval = (int)nud_Interval.Value;
+			t_RefreshChart.Start();
+			b_Start.Enabled = false;
+			b_Stop.Enabled = true;
+		}
+
+		private void About_Click(object sender, EventArgs e)
+		{
+			About about = new About();
+			about.ShowDialog();
+		}
+
+		private void WaveViewer_Click(object sender, EventArgs e)
+		{
+			l_IPAddress.Visible = true;
+			l_Port.Visible = true;
+			l_ResultReceivingSignal.Visible = true;
+			l_StattusConnect.Visible = true;
+			l_Interval.Visible = true;
+			b_Connect.Visible = true;
+			b_Disconnect.Visible = true;
+			b_Start.Visible = true;
+			b_Stop.Visible = true;
+			iac_IPAddress.Visible = true;
+			nud_Interval.Visible = true;
+			nud_Port.Visible = true;
+			chb_Filter.Visible = true;
+			chb_Wave.Visible = true;
+			cht_Wave.Visible = true;
 		}
 	}
 }
