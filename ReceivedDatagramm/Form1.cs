@@ -11,6 +11,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Reflection;
 using System.Collections;
+using System.IO;
 
 namespace ReceivedDatagramm
 {
@@ -19,7 +20,8 @@ namespace ReceivedDatagramm
 		Socket socket;
 		IPEndPoint local_host;
 		EndPoint remote_host;
-		byte[] datagramm = new byte[8192];
+		static int size_datagram = 8192;
+		byte[] datagram = new byte[size_datagram];
 		bool server_ready = false;
 		string ip_address;
 		int port;
@@ -29,26 +31,30 @@ namespace ReceivedDatagramm
 		}
 		Task PaintChatr()
 		{
-			int[] data = new int[4096];
+			short[] data = new short[size_datagram/2];
 			int x = 0;
 			try
 			{
-				int result = socket.ReceiveFrom(datagramm, ref remote_host);
-				for (int i = 0, j = 0; i < datagramm.Length; i = i + 2, j++)
-					data[j] = BitConverter.ToUInt16(datagramm, i);
-				int max = data.Max();
-				int min = data.Min();
-				int avg = (int)data.Average();
+				int result = socket.ReceiveFrom(datagram, ref remote_host);
+				for (int i = 0, j = 0; i < datagram.Length-1; i+=2, j++)
+				//data[j] = BitConverter.ToInt16(datagram, i);
+					data[j] = (short)(datagram[i] | (datagram[i] << 8));
 
-				int[] filter_data = new int[data.Length];
+				short max = data.Max();
+				short min = data.Min();
+				//int avg = data.Average();
+				short avg = Avg(data);
+
+				short[] filter_data = new short[data.Length];
 
 				filter_data = MedianFilter(data);
-				int fmax = filter_data.Max();
-				int fmin = filter_data.Min();
+				short fmax = filter_data.Max();
+				short fmin = filter_data.Min();
+				short favg = Avg(filter_data);
 
 				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {avg}";
 				if(chb_Filter.Checked)
-					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}";
+					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {favg}";
 
 				cht_Wave.Series[0].Points.Clear();
 				cht_Wave.Series[1].Points.Clear();
@@ -77,10 +83,18 @@ namespace ReceivedDatagramm
 			}
 			return Task.FromResult(0);
 		}
-		int[] MedianFilter(int[] data)
+		short Avg(short[] data)
 		{
-			int[] filter_data = new int[data.Length];
-			int median, a, b, c, i=0;
+			short avg = 0;
+			for (int i = 0; i < data.Length; i++)
+				avg += data[1];
+			avg /= (short)data.Length;
+			return avg;
+		}
+		short[] MedianFilter(short[] data)
+		{
+			short[] filter_data = new short[data.Length];
+			short median, a, b, c, i=0;
 			for (; i < filter_data.Length-2; i++)
 			{ 
 				a = data[i];
