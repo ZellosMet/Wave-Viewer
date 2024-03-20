@@ -37,12 +37,10 @@ namespace ReceivedDatagramm
 			{
 				int result = socket.ReceiveFrom(datagram, ref remote_host);
 				for (int i = 0, j = 0; i < datagram.Length-1; i+=2, j++)
-				//data[j] = BitConverter.ToInt16(datagram, i);
-					data[j] = (short)(datagram[i] | (datagram[i] << 8));
+					data[j] = (short)(datagram[i] << 8 | (datagram[i+1] ));
 
 				short max = data.Max();
 				short min = data.Min();
-				//int avg = data.Average();
 				short avg = Avg(data);
 
 				short[] filter_data = new short[data.Length];

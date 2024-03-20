@@ -103,6 +103,7 @@
 			series1.Legend = "Legend1";
 			series1.Name = "Wave";
 			series1.XValueMember = "0";
+			series2.BorderWidth = 2;
 			series2.ChartArea = "ChartArea1";
 			series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
 			series2.Color = System.Drawing.Color.Black;
