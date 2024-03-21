@@ -35,24 +35,21 @@ namespace ReceivedDatagramm
 			int x = 0;
 			try
 			{
+				short median = 0;
 				int result = socket.ReceiveFrom(datagram, ref remote_host);
 				for (int i = 0, j = 0; i < datagram.Length-1; i+=2, j++)
 					data[j] = (short)(datagram[i] << 8 | (datagram[i+1] ));
 
 				short max = data.Max();
 				short min = data.Min();
-				short avg = Avg(data);
+				//short avg = Avg(data);
 
 				short[] filter_data = new short[data.Length];
 
 				filter_data = MedianFilter(data);
 				short fmax = filter_data.Max();
 				short fmin = filter_data.Min();
-				short favg = Avg(filter_data);
-
-				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {avg}";
-				if(chb_Filter.Checked)
-					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {favg}";
+				//short favg = Avg(filter_data);
 
 				cht_Wave.Series[0].Points.Clear();
 				cht_Wave.Series[1].Points.Clear();
@@ -69,10 +66,13 @@ namespace ReceivedDatagramm
 						cht_Wave.Series[2].Points.AddXY(x + 1, filter_data[x]);
 						cht_Wave.Series[0].Color = Color.RoyalBlue;
 					}
-					cht_Wave.Series[1].Points.AddXY(x + 1, avg);
+					median = GetMedian(data);
+					cht_Wave.Series[1].Points.AddXY(x + 1, median);
 					x++;
 				}
-
+				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {median}";
+				if(chb_Filter.Checked)
+					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {median}";
 			}
 			catch (Exception ex)
 			{
@@ -81,14 +81,24 @@ namespace ReceivedDatagramm
 			}
 			return Task.FromResult(0);
 		}
-		short Avg(short[] data)
+
+		short GetMedian(short[] data)
 		{
-			short avg = 0;
-			for (int i = 0; i < data.Length; i++)
-				avg += data[1];
-			avg /= (short)data.Length;
-			return avg;
+			short median;
+			short[] cdata = new short[data.Length];
+			Array.Copy(data, cdata, data.Length);
+			Array.Sort(cdata);
+			median = cdata[cdata.Length / 2];
+			return median;
 		}
+		//short Avg(short[] data)
+		//{
+		//	short avg = 0;
+		//	for (int i = 0; i < data.Length; i++)
+		//		avg += data[1];
+		//	avg /= (short)data.Length;
+		//	return avg;
+		//}
 		short[] MedianFilter(short[] data)
 		{
 			short[] filter_data = new short[data.Length];
