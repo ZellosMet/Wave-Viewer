@@ -36,6 +36,7 @@ namespace ReceivedDatagramm
 			try
 			{
 				short median = 0;
+				short fmedian = 0;
 				int result = socket.ReceiveFrom(datagram, ref remote_host);
 				for (int i = 0, j = 0; i < datagram.Length-1; i+=2, j++)
 					data[j] = (short)(datagram[i] << 8 | (datagram[i+1] ));
@@ -67,12 +68,13 @@ namespace ReceivedDatagramm
 						cht_Wave.Series[0].Color = Color.RoyalBlue;
 					}
 					median = GetMedian(data);
+					fmedian = GetMedian(filter_data);
 					cht_Wave.Series[1].Points.AddXY(x + 1, median);
 					x++;
 				}
 				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {median}";
 				if(chb_Filter.Checked)
-					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {median}";
+					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {fmedian}";
 			}
 			catch (Exception ex)
 			{
