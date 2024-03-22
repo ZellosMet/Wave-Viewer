@@ -42,39 +42,32 @@ namespace ReceivedDatagramm
 					data[j] = (short)(datagram[i] << 8 | (datagram[i+1] ));
 
 				short max = data.Max();
-				short min = data.Min();
-				//short avg = Avg(data);
+				short min = data.Min();				
 
 				short[] filter_data = new short[data.Length];
 
 				filter_data = MedianFilter(data);
 				short fmax = filter_data.Max();
 				short fmin = filter_data.Min();
-				//short favg = Avg(filter_data);
-
+				
 				cht_Wave.Series[0].Points.Clear();
 				cht_Wave.Series[1].Points.Clear();
 				cht_Wave.Series[2].Points.Clear();
 				while (x <= data.Length - 1)
 				{
-					if (chb_Wave.Checked)
-					{ 
-						cht_Wave.Series[0].Points.AddXY(x + 1, data[x]);
-						cht_Wave.Series[0].Color = Color.Blue;
-					}
+					if (chb_Wave.Checked)					
+						cht_Wave.Series[0].Points.AddXY(x + 1, data[x]);					
 					if (chb_Filter.Checked)
-					{ 
 						cht_Wave.Series[2].Points.AddXY(x + 1, filter_data[x]);
-						cht_Wave.Series[0].Color = Color.RoyalBlue;
-					}
+					
 					median = GetMedian(data);
 					fmedian = GetMedian(filter_data);
 					cht_Wave.Series[1].Points.AddXY(x + 1, median);
 					x++;
 				}
-				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Среднее значение {median}";
+				l_ResultReceivingSignal.Text = $"Принята датаграмма. размер датаграммы {result}, Максимальное значение {max}, Минимальное значение {min}, Медиана {median}";
 				if(chb_Filter.Checked)
-					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Среднее значение фильтра {fmedian}";
+					l_ResultReceivingSignal.Text += $"\nМаксимальное значение фильтра {fmax}, Минимальное значение фильтра {fmin}, Медиана фильтра {fmedian}";
 			}
 			catch (Exception ex)
 			{
@@ -93,14 +86,6 @@ namespace ReceivedDatagramm
 			median = cdata[cdata.Length / 2];
 			return median;
 		}
-		//short Avg(short[] data)
-		//{
-		//	short avg = 0;
-		//	for (int i = 0; i < data.Length; i++)
-		//		avg += data[1];
-		//	avg /= (short)data.Length;
-		//	return avg;
-		//}
 		short[] MedianFilter(short[] data)
 		{
 			short[] filter_data = new short[data.Length];
@@ -146,9 +131,6 @@ namespace ReceivedDatagramm
 		private void b_Stop_Click(object sender, EventArgs e)
 		{
 			t_RefreshChart.Stop();
-			//chart1.Series[0].Points.Clear();
-			//chart1.Series[1].Points.Clear();
-			//chart1.Series[2].Points.Clear();
 			b_Start.Enabled = true;
 			b_Stop.Enabled = false;
 		}

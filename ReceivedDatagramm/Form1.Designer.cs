@@ -88,6 +88,8 @@
 			this.cht_Wave.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+			chartArea1.AxisY.Maximum = 4300D;
+			chartArea1.AxisY.Minimum = -300D;
 			chartArea1.Name = "ChartArea1";
 			this.cht_Wave.ChartAreas.Add(chartArea1);
 			legend1.BackImageAlignment = System.Windows.Forms.DataVisualization.Charting.ChartImageAlignmentStyle.Bottom;
@@ -98,7 +100,7 @@
 			this.cht_Wave.Name = "cht_Wave";
 			series1.ChartArea = "ChartArea1";
 			series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-			series1.Color = System.Drawing.Color.Blue;
+			series1.Color = System.Drawing.Color.RoyalBlue;
 			series1.LabelBorderWidth = 2;
 			series1.Legend = "Legend1";
 			series1.Name = "Wave";
@@ -106,7 +108,7 @@
 			series2.BorderWidth = 2;
 			series2.ChartArea = "ChartArea1";
 			series2.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-			series2.Color = System.Drawing.Color.Lime;
+			series2.Color = System.Drawing.Color.Black;
 			series2.Legend = "Legend1";
 			series2.Name = "Median";
 			series3.ChartArea = "ChartArea1";
@@ -280,7 +282,7 @@
             this.tsm_Tools});
 			this.menuStrip1.Location = new System.Drawing.Point(0, 0);
 			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size(1444, 28);
+			this.menuStrip1.Size = new System.Drawing.Size(1444, 30);
 			this.menuStrip1.TabIndex = 17;
 			this.menuStrip1.Text = "menuStrip1";
 			// 
@@ -290,7 +292,7 @@
             this.About,
             this.WaveViewer});
 			this.tsm_Tools.Name = "tsm_Tools";
-			this.tsm_Tools.Size = new System.Drawing.Size(58, 24);
+			this.tsm_Tools.Size = new System.Drawing.Size(58, 26);
 			this.tsm_Tools.Text = "Tools";
 			// 
 			// About
